@@ -1,0 +1,18 @@
+- Used LLM tool: 
+ChatGPT and GitHub Copilot
+
+- Motivation / reason to use LLM:
+Stuck in setting up a Kotlin & gradle project as it is a new language
+Copilot is enabled in my IDEs in the hopes that it saves time by not having to write duplicate and menial code. Also helps with debugging
+
+- How and why LLM helped: 
+ChatGPT was especially helpful with debugging what was wrong with my Kotlin/gradle setup. 
+Github Copilot in turn tries to be helpful with autofilling simple bits of code, but more often than not it seems to autofill completely unrelated or broken bits of code.
+
+- What kind of mistakes LLM did:
+Both LLMs frequently made mistakes. Even though ChatGPT was able to eventually debug my Kotlin/Gradle setup, it took extensive propmpting to reach that point.
+Copilot in turn tries to autofill a line (or lines) of code that you are writing. Often times, however, it writes way too complicated or complitely unrelated code. I think the problem is its lack of context, as it can not fully understand the end goal and/or the vision of the programmer.
+This often leads to wasting time juggling between tab/esq/backspace keyes as it proposes autofill -> you dont want it to autofill -> it autofills anyways -> you need to erase what it wrote... (having said that, there are times when it gets things right and actually slightly increases overall efficiency)
+
+- What were things that LLM was not able to provide:
+I think the most important parts were already said above. 
