@@ -73,7 +73,7 @@ app.get('/log', async (req, res) => {
   }
 });
 
-app.post('/clear', async (req, res) => {
+app.get('/clear', async (req, res) => {
   try {
     fs.writeFileSync(VSTORAGE_PATH, '');
 
