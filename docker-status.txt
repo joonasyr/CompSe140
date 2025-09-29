@@ -1,11 +1,10 @@
 CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS          PORTS                    NAMES
-8fba0681587a   exercise1-service1   "docker-entrypoint.s…"   39 seconds ago   Up 37 seconds   0.0.0.0:8199->8199/tcp   exercise1-service1-1
-1f8a3a519173   exercise1-service2   "/__cacert_entrypoin…"   39 seconds ago   Up 37 seconds   8188/tcp                 exercise1-service2-1
-23b23e14ff87   exercise1-storage    "docker-entrypoint.s…"   39 seconds ago   Up 38 seconds   8080/tcp                 exercise1-storage-1
-
+c6e24159e1d3   compse140-service1   "docker-entrypoint.s…"   55 seconds ago   Up 54 seconds   0.0.0.0:8199->8199/tcp   compse140-service1-1
+7d74165f64a5   compse140-service2   "/__cacert_entrypoin…"   56 seconds ago   Up 54 seconds   8188/tcp                 compse140-service2-1
+39c9c8f59644   compse140-storage    "docker-entrypoint.s…"   56 seconds ago   Up 54 seconds   8080/tcp                 compse140-storage-1
 
 NETWORK ID     NAME                DRIVER    SCOPE
 dd8aa659ffaf   bridge              bridge    local
-cddc0a45f90f   exercise1_default   bridge    local
+837e124c1e49   compse140_default   bridge    local
 4d8e1ec8d7bc   host                host      local
 c0a930adb083   none                null      local
