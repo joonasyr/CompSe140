@@ -1,0 +1,33 @@
+services:
+  service1:
+    build: ./service1
+    ports:
+      - "8199:8199"
+    environment:
+      - STORAGE_URL=http://storage:8080
+      - SERVICE2_URL=http://service2:8188/status
+      - VSTORAGE_PATH=/vstorage
+    depends_on:
+      - service2
+      - storage
+    volumes:
+      - ./vstorage:/vstorage
+
+  service2:
+    build: ./service2
+    environment:
+      - STORAGE_URL=http://storage:8080
+      - SERVICE2_PORT=8188
+      - VSTORAGE_PATH=/vstorage
+    depends_on:
+      - storage
+    volumes:
+      - ./vstorage:/vstorage
+
+  storage:
+    build: ./storage
+    volumes:
+      - storage_data:/data
+
+volumes:
+  storage_data:

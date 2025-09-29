@@ -1,61 +1,57 @@
-const express = require('express');
-const fs = require('fs');
-const { execSync } = require('child_process');
-const os = require('os');
-const path = require('path');
-const fetch = require('node-fetch');
+import express from 'express';
+import checkDiskSpace from 'check-disk-space';
+import fs from 'fs';
 
-const STORAGE_URL = process.env.STORAGE_URL || 'http://storage:8080';
-const SERVICE2_URL = process.env.SERVICE2_URL || 'http://service2:8188/status';
-const VSTORAGE_PATH = process.env.VSTORAGE_PATH || '/vstorage/status.log';
+const STORAGE_URL = process.env.STORAGE_URL
+const SERVICE2_URL = process.env.SERVICE2_URL
+const VSTORAGE_PATH = process.env.VSTORAGE_PATH
 
 const app = express();
 const PORT = 8199;
 
-function uptimeHours() {
-  try {
-    const text = fs.readFileSync('/proc/uptime', 'utf8').split(' ')[0];
-    return parseFloat(text) / 3600;
-  } catch (error) {
-    console.error(`Error reading /proc/uptime: ${error}. Returning os.uptime()`);
-    return os.uptime() / 3600;
-  }
+// ISO8601 UTC wihtout milliseconds
+function getTimestamp() {
+  return new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 }
 
-function freeDiskSpaceMB() {
+function getUptimeHours() {
+  return (process.uptime() / 3600).toFixed(2);
+}
+
+async function getFreeDiskSpaceMB() {
   try {
-    return parseInt(execSync("df -m / tail -1 | awk '{print $4}'").toString().trim(), 10);
+    const diskSpace = await checkDiskSpace('/');
+    return (diskSpace.free / (1024 * 1024)).toFixed(1);
   } catch (error) {
-    console.error(`Error getting free disk space: ${error}. Returning 0`);
+    console.error(`Free disk space error: ${error}`);
     return 0;
   }
 }
 
-function buildStatus(prefix) {
-  return `${prefix}: uptime ${uptimeHours().toFixed(2)} hours, free disk space in root ${freeDiskSpaceMB()} MBytes`;
+async function buildLogMessage(prefix) {
+  const freeDiskSpace = await getFreeDiskSpaceMB();
+  const date = getTimestamp();
+  const uptime = getUptimeHours();
+  return `${prefix}: ${date} uptime ${uptime} hours, free disk in root: ${freeDiskSpace} MBytes`;
 }
 
 function saveToVStorage(line) {
-  fs.mkdirSync(path.dirname(VSTORAGE_PATH), { recursive: true });
-  fs.appendFileSync(VSTORAGE_PATH, `${line}\n`);
-}
-
-async function postToStorage(line) {
   try {
-    const response = await fetch(`${STORAGE_URL}/log`, {
-      method: 'POST',
-      headers: { 'Content-type': 'text/plain' },
-      body: line,
-    });
-  } catch (error) {
-    console.error(`Error posting to storage: ${error}`);
+    fs.appendFileSync(VSTORAGE_PATH, line + '\n');
+  } catch (e) {
+    console.error('Save to vstorage error:', e);
   }
 }
 
+
 app.get('/status', async (req, res) => {
-  const status1 = buildStatus('Timestamp1');
+  const status1 = await buildLogMessage('Timestamp1');
   saveToVStorage(status1);
-  await postToStorage(status1);
+  await fetch(`${STORAGE_URL}/log`, {
+    method: 'POST',
+    headers: { 'Content-type': 'text/plain' },
+    body: status1,
+  });
 
   let status2;
   try {
@@ -74,6 +70,18 @@ app.get('/log', async (req, res) => {
     res.status(response.status).type('text/plain').send(await response.text());
   } catch (error) {
     res.status(502).send(`Error fetching log from storage: ${error}`);
+  }
+});
+
+app.post('/clear', async (req, res) => {
+  try {
+    fs.writeFileSync(VSTORAGE_PATH, '');
+
+    await fetch(`${STORAGE_URL}/clear`).catch(() => null);
+
+    res.type('text/plain').send('CLEARED\n');
+  } catch (error) {
+    res.status(500).send(`Error clearing logs: ${error}`);
   }
 });
 

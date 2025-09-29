@@ -1,3 +1,8 @@
+.gradle
+build/
+.idea
+.vscode
+
 # Logs
 logs
 *.log
